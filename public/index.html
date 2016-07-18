@@ -5,8 +5,18 @@
   </head>
   <body>
     <div id="connection-count"></div>
-    
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <div id="status-message"></div>
+    <div id="count"></div>
+    <div id="total"></div>
+
+    <!-- Make sure your JS is at the bottom of the body! -->
+    <div id="choices">
+      <button>A: </button>
+      <button>B: </button>
+      <button>C: </button>
+      <button>D: </button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/client.js"></script>
   </body>
 </html>
