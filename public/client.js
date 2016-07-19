@@ -1,30 +1,25 @@
 var socket = io();
 
+var connectionCount = document.getElementById('connection-count');
+var currentTally = document.getElementById('current-tally');
+
+socket.on('usersConnected', function (count) {
+  connectionCount.innerText = 'Connected Users: ' + count;
+});
+
 var statusMessage = document.getElementById('status-message');
 
 socket.on('statusMessage', function (message) {
   statusMessage.innerText = message;
 });
 
-var connectionCount = document.getElementById('connection-count');
-
-socket.on('usersConnected', function (count) {
-  connectionCount.innerText = 'Connected Users: ' + count;
+socket.on('voteCount', function (votes) {
+  currentTally.innerText = 'Current Tally: ' + formatVotes(votes);
+  console.log(votes);
 });
 
-var yourVote = document.getElementById("count")
-
-socket.on('voteCount', function (votes) {
-  if (votes["A"] === 1) {
-    yourVote.innerHTML = ("<div>" + "A " + votes["A"] + "</div>");
-  }
-  else if (votes["B"] === 1) {
-    yourVote.innerHTML = ("<div>" + "B " + votes["B"] + "</div>");
-  } else if (votes["C"] === 1) {
-    yourVote.innerHTML = ("<div>" + "C " + votes["C"] + "</div>");
-  } else {
-    yourVote.innerHTML = ("<div>" + "D " + votes["D"] + "</div>");
-  }
+socket.on('userVote', function (message) {
+  statusMessage.innerText = 'Vote for ' + message + ' recieved!';
 });
 
 var buttons = document.querySelectorAll('#choices button');
@@ -33,4 +28,12 @@ for (var i = 0; i < buttons.length; i++) {
   buttons[i].addEventListener('click', function () {
     socket.send('voteCast', this.innerText);
   });
+}
+
+function formatVotes(votes){
+  let a = "A: " + votes.A + " ",
+      b = "B: " + votes.B + " ",
+      c = "C: " + votes.C + " ",
+      d = "D: " + votes.D + " ";
+  return a + b + c + d;
 }

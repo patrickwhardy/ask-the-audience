@@ -1,5 +1,8 @@
 const http = require('http');
 const express = require('express');
+const socketIo = require('socket.io');
+
+var votes = {};
 
 const app = express();
 
@@ -9,16 +12,13 @@ app.get('/', function (req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
 
-var server = http.createServer(app);
+const port = process.env.PORT || 3000;
 
-var port = process.env.PORT || 3000;
+const server = http.createServer(app)
+                   .listen(port, function () {
+                     console.log('Listening on port ' + port + '.');
+                   });
 
-var server = http.createServer(app);
-server.listen(port, function () {
-  console.log('Listening on port ' + port + '.');
-});
-
-const socketIo = require('socket.io');
 const io = socketIo(server);
 
 io.on('connection', function (socket) {
@@ -30,15 +30,9 @@ io.on('connection', function (socket) {
 
   socket.on('message', function (channel, message) {
     if (channel === 'voteCast') {
-      console.log(message);
-      votes = message;
-      socket.emit('voteCount', countVotes(votes));
-
-    }
-
-    if (channel === 'message') {
       votes[socket.id] = message;
-      socket.emit('yourVote',  message)
+      socket.emit('userVote', message);
+      socket.emit('voteCount', countVotes(votes));
     }
   });
 
@@ -50,18 +44,18 @@ io.on('connection', function (socket) {
   });
 });
 
-var votes = {};
-
 function countVotes(votes) {
   var voteCount = {
-      A: 0,
-      B: 0,
-      C: 0,
-      D: 0
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0
   };
-    for (var vote in votes) {
-      voteCount[votes[vote]]++;
-    }
+
+  for (var vote in votes) {
+    voteCount[votes[vote]]++
+  }
+
   return voteCount;
 }
 
